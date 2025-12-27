@@ -1,91 +1,151 @@
+<!-- merchant-dashboard.component.html -->
 <div class="merchant-dashboard" dir="rtl">
-  <div class="dashboard-header">
-    <h1>{{ merchantData.businessName }}</h1>
-    <button (click)="scanQR()" class="scan-btn">📱 ماسح QR</button>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card blue">
-      <div class="stat-icon">👥</div>
-      <div class="stat-content">
-        <p>إجمالي العملاء</p>
-        <h3>{{ merchantData.totalCustomers }}</h3>
-      </div>
-    </div>
-
-    <div class="stat-card green">
-      <div class="stat-icon">💰</div>
-      <div class="stat-content">
-        <p>إجمالي الإيرادات</p>
-        <h3>{{ merchantData.totalRevenue | number }} ريال</h3>
-      </div>
-    </div>
-
-    <div class="stat-card orange">
-      <div class="stat-icon">🚗</div>
-      <div class="stat-content">
-        <p>الغسلات اليوم</p>
-        <h3>{{ merchantData.washesToday }}</h3>
-      </div>
-    </div>
-
-    <div class="stat-card purple">
-      <div class="stat-icon">🎫</div>
-      <div class="stat-content">
-        <p>بطاقات الولاء النشطة</p>
-        <h3>{{ merchantData.activeLoyaltyCards }}</h3>
-      </div>
-    </div>
-  </div>
-
-  <div class="dashboard-grid">
-    <div class="quick-stats">
-      <h3>إحصائيات سريعة</h3>
-      <div class="stat-item">
-        <span>نمو هذا الشهر</span>
-        <span class="value green">{{ merchantData.quickStats.monthlyGrowth }}%</span>
-      </div>
-      <div class="stat-item">
-        <span>معدل الاحتفاظ</span>
-        <span class="value green">{{ merchantData.quickStats.customerRetention }}%</span>
-      </div>
-      <div class="stat-item">
-        <span>متوسط قيمة الغسلة</span>
-        <span class="value">{{ merchantData.quickStats.avgWashValue }} ريال</span>
-      </div>
-      <div class="stat-item">
-        <span>المكافآت المستبدلة</span>
-        <span class="value">{{ merchantData.quickStats.rewardsRedeemed }}</span>
-      </div>
-    </div>
-
-    <div class="recent-scans">
-      <h3>آخر المسحات</h3>
-      <div class="scan-item" *ngFor="let scan of merchantData.recentScans">
-        <div class="scan-info">
-          <h4>{{ scan.customer }}</h4>
-          <p>{{ scan.time }}</p>
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="merchant-info">
+        <div class="business-logo">
+          <span class="logo-icon">🏢</span>
         </div>
-        <span class="scan-status success">✓ {{ scan.status }}</span>
+        <div class="merchant-details">
+          <h1>{{ merchantData.businessName }}</h1>
+          <div class="merchant-meta">
+            <span class="location">📍 {{ merchantData.city }}</span>
+            <span class="plan-badge" [ngClass]="merchantData.plan">
+              {{ merchantData.plan === 'pro' ? 'باقة Pro' : 'باقة Basic' }}
+            </span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <button class="action-btn scan-btn" (click)="scanQR()">
+          📷 مسح QR
+        </button>
+        <button class="action-btn settings-btn" (click)="navigateTo('settings')">
+          ⚙️ الإعدادات
+        </button>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div class="menu-section">
-    <h3>القائمة السريعة</h3>
-    <div class="menu-grid">
-      <button (click)="navigateTo('customers')" class="menu-card">
-        <span class="menu-icon">👥</span>
-        <span class="menu-label">العملاء</span>
+  <!-- Quick Stats -->
+  <section class="quick-stats">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+          <h3>العملاء</h3>
+          <p class="stat-value">{{ dashboardStats.totalCustomers }}</p>
+          <p class="stat-trend positive">+{{ dashboardStats.newCustomersToday }} جديد</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🚗</div>
+        <div class="stat-content">
+          <h3>غسلات اليوم</h3>
+          <p class="stat-value">{{ dashboardStats.washesToday }}</p>
+          <p class="stat-trend">{{ getTimeAgo(dashboardStats.lastWashTime) }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <h3>الإيرادات</h3>
+          <p class="stat-value">{{ dashboardStats.todayRevenue | number }}</p>
+          <p class="stat-label">ريال سعودي</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-content">
+          <h3>المكافآت</h3>
+          <p class="stat-value">{{ dashboardStats.rewardsGiven }}</p>
+          <p class="stat-trend">{{ dashboardStats.pendingRewards }} قيد الانتظار</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quick Actions -->
+  <section class="quick-actions">
+    <h2 class="section-title">الإجراءات السريعة</h2>
+    <div class="actions-grid">
+      <button class="action-card" (click)="addCustomer()">
+        <div class="action-icon">➕</div>
+        <h3>إضافة عميل</h3>
+        <p>سجل عميل جديد</p>
       </button>
-      <button (click)="navigateTo('scan-qr')" class="menu-card">
-        <span class="menu-icon">📱</span>
-        <span class="menu-label">مسح QR</span>
+
+      <button class="action-card" (click)="viewCustomers()">
+        <div class="action-icon">👥</div>
+        <h3>العملاء</h3>
+        <p>إدارة قائمة العملاء</p>
       </button>
-      <button (click)="navigateTo('settings')" class="menu-card">
-        <span class="menu-icon">⚙️</span>
-        <span class="menu-label">الإعدادات</span>
+
+      <button class="action-card" (click)="scanQR()">
+        <div class="action-icon">📷</div>
+        <h3>مسح QR</h3>
+        <p>سجل غسلة جديدة</p>
+      </button>
+
+      <button class="action-card" (click)="viewReports()">
+        <div class="action-icon">📊</div>
+        <h3>التقارير</h3>
+        <p>عرض الإحصائيات</p>
       </button>
     </div>
-  </div>
+  </section>
+
+  <!-- Recent Activity -->
+  <section class="recent-activity">
+    <div class="section-header">
+      <h2 class="section-title">النشاط الأخير</h2>
+      <button class="view-all" (click)="viewAllActivity()">عرض الكل →</button>
+    </div>
+
+    <div class="activity-list">
+      <div class="activity-item" *ngFor="let activity of recentActivity">
+        <div class="activity-icon" [ngClass]="activity.type">
+          <span>{{ activity.type === 'wash' ? '🚗' : 
+                   activity.type === 'customer' ? '👤' : 
+                   activity.type === 'reward' ? '🎁' : '💰' }}</span>
+        </div>
+        <div class="activity-content">
+          <h4>{{ activity.title }}</h4>
+          <p>{{ activity.description }}</p>
+          <span class="activity-time">{{ activity.time }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Loyalty Status -->
+  <section class="loyalty-status">
+    <h2 class="section-title">حالة الولاء</h2>
+    <div class="loyalty-card">
+      <div class="loyalty-header">
+        <h3>إعدادات برنامج الولاء</h3>
+        <button class="edit-btn" (click)="editLoyaltySettings()">تعديل</button>
+      </div>
+      
+      <div class="loyalty-details">
+        <div class="detail">
+          <span class="label">المكافأة:</span>
+          <span class="value">{{ loyaltySettings.rewardName }}</span>
+        </div>
+        <div class="detail">
+          <span class="label">الغسلات المطلوبة:</span>
+          <span class="value">{{ loyaltySettings.washesRequired }}</span>
+        </div>
+        <div class="detail">
+          <span class="label">المدة:</span>
+          <span class="value">{{ loyaltySettings.timePeriod }} يوم</span>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>

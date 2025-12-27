@@ -38,10 +38,6 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/Customer/customer-dashboard/customer-dashboard.component').then(m => m.CustomerDashboardComponent)
       },
       {
-        path: 'profile',
-        loadComponent: () => import('./pages/Customer/customer-profile/customer-profile.component').then(m => m.CustomerProfileComponent)
-      },
-      {
         path: 'wallet',
         loadComponent: () => import('./pages/Customer/customer-wallet/customer-wallet.component').then(m => m.CustomerWalletComponent)
       },
@@ -106,6 +102,9 @@ export const routes: Routes = [
       {
         path: 'revenue',
         loadComponent: () => import('./pages/superadmin/system-revenue/system-revenue.component').then(m => m.SystemRevenueComponent)
+      },  {
+        path: 'platform-settings',
+        loadComponent: () => import('./pages/superadmin/Platform-Settings/Platform-Settings.component').then(m => m.PlatformSettingsComponent)
       }
     ]
   },

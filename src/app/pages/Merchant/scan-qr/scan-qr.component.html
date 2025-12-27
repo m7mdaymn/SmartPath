@@ -1,58 +1,114 @@
-<div class="scan-qr-container" dir="rtl">
-  <div class="scan-header">
-    <h1>ماسح رمز QR</h1>
+<!-- scan-qr.component.html -->
+<div class="scan-page" dir="rtl">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>📷 مسح رمز QR</h1>
+      <button class="back-btn" (click)="goBack()">← رجوع</button>
+    </div>
   </div>
 
+  <!-- Scan Area -->
   <div class="scan-section">
-    <div class="scan-input-group">
-      <label>أدخل رمز QR</label>
-      <div class="input-wrapper">
-        <input type="text" 
-               [(ngModel)]="qrInput" 
-               (keyup.enter)="scanQR()"
-               placeholder="الصق أو اكتب رمز QR هنا"
-               class="qr-input">
-        <button (click)="scanQR()" [disabled]="isScanning" class="scan-btn">
-          {{ isScanning ? 'جاري المعالجة...' : 'مسح' }}
+    <div class="scan-area">
+      <div class="scan-frame">
+        <div class="scan-overlay">
+          <div class="scan-lines"></div>
+        </div>
+        <div class="scan-placeholder">
+          📷
+        </div>
+      </div>
+      
+      <div class="scan-actions">
+        <button class="scan-btn" (click)="openCamera()">
+          🔓 فتح الكاميرا
+        </button>
+        <button class="manual-btn" (click)="openManualInput()">
+          ⌨️ إدخال يدوي
         </button>
       </div>
     </div>
 
-    <div *ngIf="lastScanResult" class="scan-result" [ngClass]="'result-' + lastScanResult.status">
-      <div class="result-icon">{{ lastScanResult.status === 'success' ? '✅' : '❌' }}</div>
-      <h3>{{ lastScanResult.customerName }}</h3>
-      <p class="qr-code">{{ lastScanResult.qrCode }}</p>
-      <div class="service-details">
-        <span>{{ lastScanResult.serviceType }}</span>
-        <span>{{ lastScanResult.amount }} ريال</span>
-      </div>
-      <p class="timestamp">{{ lastScanResult.timestamp }}</p>
+    <!-- Quick Instructions -->
+    <div class="instructions">
+      <h3>كيفية الاستخدام:</h3>
+      <ul>
+        <li>وجه الكاميرا نحو رمز QR للعميل</li>
+        <li>انتظر حتى يتم التعرف تلقائياً</li>
+        <li>أو أدخل الرمز يدوياً</li>
+      </ul>
     </div>
   </div>
 
-  <div class="scan-history">
-    <div class="history-header">
-      <h3>سجل المسحات</h3>
-      <button (click)="clearHistory()" class="clear-btn" *ngIf="scanHistory.length > 0">حذف السجل</button>
-    </div>
-
-    <div class="history-list">
-      <div *ngFor="let item of scanHistory" class="history-item" [ngClass]="'item-' + item.status">
-        <div class="item-header">
-          <h4>{{ item.customerName }}</h4>
-          <span class="status-badge" [ngClass]="item.status">{{ item.status === 'success' ? '✓' : '✕' }}</span>
+  <!-- Manual Input Modal -->
+  <div *ngIf="showManualInput" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>إدخال رمز QR يدوياً</h2>
+        <button class="close-btn" (click)="closeManualInput()">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="input-group">
+          <label>رمز QR</label>
+          <input type="text" 
+                 [(ngModel)]="manualQRCode"
+                 placeholder="DP-CUST-XXXX"
+                 (keyup.enter)="submitManualQR()">
         </div>
-        <p class="qr-code">{{ item.qrCode }}</p>
-        <div class="item-footer">
-          <span>{{ item.serviceType }} - {{ item.amount }} ريال</span>
-          <span class="time">{{ item.timestamp }}</span>
-        </div>
+        
+        <button class="submit-btn" (click)="submitManualQR()">
+          تأكيد
+        </button>
       </div>
     </div>
+  </div>
 
-    <div *ngIf="scanHistory.length === 0" class="empty-history">
-      <span class="empty-icon">📭</span>
-      <p>لا توجد مسحات بعد</p>
+  <!-- Scan Result -->
+  <div *ngIf="scanResult" class="scan-result" [ngClass]="scanResult.status">
+    <div class="result-header">
+      <div class="result-icon">
+        {{ scanResult.status === 'success' ? '✅' : '❌' }}
+      </div>
+      <h2>{{ scanResult.title }}</h2>
     </div>
+    
+    <div class="result-body">
+      <div class="customer-info">
+        <div class="customer-photo">
+          <span *ngIf="!scanResult.customerPhoto">👤</span>
+          <img *ngIf="scanResult.customerPhoto" [src]="scanResult.customerPhoto">
+        </div>
+        <div class="customer-details">
+          <h3>{{ scanResult.customerName }}</h3>
+          <p>{{ scanResult.customerPhone }}</p>
+        </div>
+      </div>
+      
+      <div class="progress-info">
+        <div class="progress-label">
+          <span>التقدم</span>
+          <span>{{ scanResult.currentWashes }} / {{ scanResult.totalWashes }}</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="scanResult.progress"></div>
+        </div>
+      </div>
+      
+      <!-- <div class="time-info">
+        <span class="time-label">الوقت المتبقي:</span>
+        <span class="time-value">{{ scanResult.daysLeft }} يوم</span>
+      </div> -->
+      
+      <div *ngIf="scanResult.rewardEarned" class="reward-alert">
+        🎉 مبروك! العميل استحق المكافأة
+      </div>
+    </div>
+    
+    <!-- <div class="result-actions">
+      <button class="done-btn" (click)="resetScan()">تم</button>
+      <button class="new-btn" (click)="scanAgain()">مسح آخر</button>
+    </div> -->
   </div>
 </div>
