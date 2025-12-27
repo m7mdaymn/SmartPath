@@ -117,7 +117,7 @@ export class CustomerDashboardComponent implements OnInit {
       icon: '💳', 
       label: 'إضافة رصيد', 
       description: 'أضف رصيد إلى محفظتك الرقمية',
-      route: '/customer/wallet/add', 
+      route: '/customer/wallet', 
       color: '#10B981' 
     },
     { 
@@ -181,7 +181,7 @@ export class CustomerDashboardComponent implements OnInit {
 
   // 🔹 7. دالة التنقل لصفحة إضافة رصيد
   navigateToAddBalance(): void {
-    this.navigateTo('/customer/wallet/add');
+    this.navigateTo('/customer/wallet');
   }
 
   // 🔹 8. دالة التنقل لصفحة بطاقات الولاء
@@ -492,7 +492,7 @@ export class CustomerDashboardComponent implements OnInit {
   }
 
   addWalletBalance(): void {
-    this.navigateWithLoader('/customer/wallet/add', 'جاري تحويلك لصفحة إضافة الرصيد...');
+    this.navigateWithLoader('/customer/wallet', 'جاري تحويلك لصفحة إضافة الرصيد...');
   }
 
   viewWallet(): void {
